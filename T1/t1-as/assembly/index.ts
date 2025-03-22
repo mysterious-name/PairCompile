@@ -1,6 +1,7 @@
 // The entry file of your WebAssembly module.
-export function greed_snake_move(body: i32[], fruit: i32[]): i32 {
-  let headPoint = trans2Point(body[0], body[1]);
+export function greedy_snake_move(body: i32[], fruit: i32[]): i32 {
+  console.log("begin\n");
+  const headPoint = trans2Point(body[0], body[1]);
   let bodyPoint1 = trans2Point(body[2], body[3]);
   let bodyPoint2 = trans2Point(body[4], body[5]);
   let bodyPoint3 = trans2Point(body[6], body[7]);
@@ -22,7 +23,8 @@ export function greed_snake_move(body: i32[], fruit: i32[]): i32 {
       while (pathMap[point] !== headPoint) {
         point = pathMap[point];
       }
-      return getDirection(headPoint, x, y);
+      console.log("find a way to fruit\n");
+      return getDirection(headPoint, point);
     }
     updateSnakeBarriers(snakeBarriers, pathMap, point);
     if (!exceedBound(x + 1, y) && !isBarrier(x + 1, y, snakeBarriers) && !visited.has(trans2Point(x + 1, y))) {
@@ -42,6 +44,7 @@ export function greed_snake_move(body: i32[], fruit: i32[]): i32 {
       pathMap[x * 8 + y - 1] = point;
     }
   }
+  console.log("fail to find a way to fruit\n");
   return -1;
 }
 
@@ -55,7 +58,7 @@ function isBarrier(x: i32, y: i32, barriers: Set<i32>): bool {
 }
 
 function trans2Point(x: i32, y: i32): i32 {
-  return (x / 8) + (y % 8);
+  return x * 8 + y;
 }
 
 function initPathMap(pathMap: i32[], headPoint: i32, bodyPoint1: i32,
@@ -65,19 +68,28 @@ function initPathMap(pathMap: i32[], headPoint: i32, bodyPoint1: i32,
   pathMap[bodyPoint2] = bodyPoint3;
 }
 
-function getDirection(point: i32, next_x: i32, next_y: i32): i32 {
-  let head_x = point / 8;
-  let head_y = point % 8;
+function getDirection(headPoint: i32, point: i32): i32 {
+  let next_x = point / 8;
+  let next_y = point % 8;
+  let head_x = headPoint / 8;
+  let head_y = headPoint % 8;
+  console.log(headPoint.toString());
+  console.log(next_x.toString());
+  console.log(next_y.toString());
   if (next_x === head_x + 1) {
+    console.log("right");
     return 3;
   }
   if (next_x === head_x - 1) {
+    console.log("left");
     return 1;
   }
   if (next_y === head_y + 1) {
+    console.log("up");
     return 0;
   }
   if (next_y === head_y - 1) {
+    console.log("down");
     return 2;
   }
   return -1;
@@ -90,5 +102,15 @@ function updateSnakeBarriers(snakeBarriers: Set<i32>, pathMap: i32[], point: i32
   const snakeBarrier3 = pathMap[snakeBarrier2];
   snakeBarriers.add(snakeBarrier1);
   snakeBarriers.add(snakeBarrier2);
-  snakeBarriers.add(snakeBarrier3);
+  // snakeBarriers.add(snakeBarrier3);
+}
+
+function debugPrint(point: i32): void {
+  let x = point / 8;
+  let y = point % 8;
+  console.log("x: ");
+  console.log(x.toString());
+  console.log("y: ");
+  console.log(y.toString());
+  console.log("\n");
 }
