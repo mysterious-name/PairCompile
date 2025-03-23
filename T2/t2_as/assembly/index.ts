@@ -1,5 +1,4 @@
 export function greedySnakeMoveBarriers(body: i32[], fruit: i32[], barriers: i32[]): i32 {
-  console.log("begin\n");
   const headPoint = trans2Point(body[0], body[1]);
   let bodyPoint1 = trans2Point(body[2], body[3]);
   let bodyPoint2 = trans2Point(body[4], body[5]);
@@ -72,7 +71,6 @@ function getDirection(headPoint: i32, point: i32): i32 {
   let next_y = point % 8;
   let head_x = headPoint / 8;
   let head_y = headPoint % 8;
-  console.log(headPoint.toString());
   console.log(next_x.toString());
   console.log(next_y.toString());
   if (next_x === head_x + 1) {
