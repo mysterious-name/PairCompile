@@ -26,19 +26,19 @@ export function greedySnakeMoveBarriers(body: i32[], fruit: i32[], barriers: i32
       console.log("find a way to fruit\n");
       return getDirection(headPoint, point);
     }
-    if (!exceedBound(x + 1, y) && !isBarrier(x + 1, y, blockBarriers) && !visited.has(trans2Point(x + 1, y)) && !isGoBack(x + 1, y, pathMap)) {
+    if (!exceedBound(x + 1, y) && !isBarrier(x + 1, y, blockBarriers) && !visited.has(trans2Point(x + 1, y)) && !isGoBack(point, x + 1, y, pathMap)) {
       queue[queueEnd++] = (x + 1) * 8 + y;
       pathMap[(x + 1) * 8 + y] = point;
     }
-    if (!exceedBound(x - 1, y) && !isBarrier(x - 1, y, blockBarriers) && !visited.has(trans2Point(x - 1, y)) && !isGoBack(x - 1, y, pathMap)) {
+    if (!exceedBound(x - 1, y) && !isBarrier(x - 1, y, blockBarriers) && !visited.has(trans2Point(x - 1, y)) && !isGoBack(point, x - 1, y, pathMap)) {
       queue[queueEnd++] = (x - 1) * 8 + y;
       pathMap[(x - 1) * 8 + y] = point;
     }
-    if (!exceedBound(x, y + 1) && !isBarrier(x, y + 1, blockBarriers) && !visited.has(trans2Point(x, y + 1)) && !isGoBack(x, y + 1, pathMap)) {
+    if (!exceedBound(x, y + 1) && !isBarrier(x, y + 1, blockBarriers) && !visited.has(trans2Point(x, y + 1)) && !isGoBack(point, x, y + 1, pathMap)) {
       queue[queueEnd++] = x * 8 + y + 1;
       pathMap[x * 8 + y + 1] = point;
     }
-    if (!exceedBound(x, y - 1) && !isBarrier(x, y - 1, blockBarriers) && !visited.has(trans2Point(x, y - 1)) && !isGoBack(x, y - 1, pathMap)) {
+    if (!exceedBound(x, y - 1) && !isBarrier(x, y - 1, blockBarriers) && !visited.has(trans2Point(x, y - 1)) && !isGoBack(point, x, y - 1, pathMap)) {
       queue[queueEnd++] = x * 8 + y - 1;
       pathMap[x * 8 + y - 1] = point;
     }
@@ -104,10 +104,10 @@ function getDirection(headPoint: i32, point: i32): i32 {
 //   // snakeBarriers.add(snakeBarrier3);
 // }
 
-function isGoBack(x: i32, y: i32, pathMap: i32[]): bool {
-  let headPoint = x * 8 + y;
+function isGoBack(headPoint: i32, x: i32, y: i32, pathMap: i32[]): bool {
+  let nextPoint = x * 8 + y;
   let prevPoint = pathMap[headPoint];
-  return headPoint === pathMap[prevPoint];
+  return nextPoint === prevPoint;
 }
 
 function initBlockBarriers(blockBarriers: Set<i32>, barriers: i32[]): void {
