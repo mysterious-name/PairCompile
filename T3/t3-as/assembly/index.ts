@@ -3,40 +3,21 @@ var map_size = 0;
 export function greedy_snake_step(n: i32, snake: i32[], snake_num: i32, enemy_snake: i32[],
   food_num: i32, foods: i32[], round: i32): i32 {
   map_size = n;
-
-  if (n === 5) {
-    return greedy_snake_step5(snake, snake_num, enemy_snake, food_num, foods, round);
-  } else {
-    return greedy_snake_step8(snake, snake_num, enemy_snake, food_num, foods, round);
-  }
-}
-
-
-function greedy_snake_step5(snake: i32[], snake_num: i32, enemy_snake: i32[],
-  food_num: i32, foods: i32[], round: i32): i32 {
-
-  return 0;
-}
-
-
-function greedy_snake_step8(snake: i32[], snake_num: i32, enemy_snake: i32[],
-  food_num: i32, foods: i32[], round: i32): i32 {
-
-  return 0;
+  return cal_food_dis(snake, snake_num, enemy_snake, food_num, foods);
 }
 
 function cal_food_dis(snake: i32[], snake_num: i32, enemy_snake: i32[],
   food_num: i32, foods: i32[]): i32 {
-  var good_foods = [];
-  var equal_foods = [];
-  var bad_foods = [];
+  let good_foods: Array<i32> = new Array<i32>();
+  let equal_foods: Array<i32> = new Array<i32>();
+  let bad_foods: Array<i32> = new Array<i32>();
   for (let i = 0; i < food_num; i++) {
     let dis = 0;
     let min_dis = 0xffff;
     let my_dis = cal_single_dis(snake, [foods[2 * i], foods[2 * i + 1]]);
     for (let j = 0; j < snake_num; j++) {
       dis = cal_single_dis(snake, [enemy_snake[2 * j], enemy_snake[2 * j + 1]]);
-      min_dis = Math.min(min_dis, dis);
+      min_dis = Math.min(min_dis, dis) as i32;
     }
     if (my_dis < min_dis - 1) {
       good_foods.push(i);//离我们近的好果子
@@ -49,13 +30,13 @@ function cal_food_dis(snake: i32[], snake_num: i32, enemy_snake: i32[],
   var save_food = -1;
   var save_score = -0xffff;
   for (let i = 0; i < good_foods.length; i++) {
-    var score = 0;
+    let score = 0;
     for (let j = 0; j < bad_foods.length; j++) {
       score += cal_single_dis([foods[2 * bad_foods[j]], foods[2 * bad_foods[j] + 1]],
         [foods[2 * good_foods[i]], foods[2 * good_foods[i] + 1]]);
       //计算每个好果子到坏果子的综合距离
     }
-    score -= cal_single_dis(snake, [foods[2 * good_foods[i]], foods[2 * good_foods[i] + 1]]) * bad_foods.length;
+    score -= cal_single_dis(snake, [foods[2 * good_foods[i]], foods[2 * good_foods[i] + 1]]) * (bad_foods.length + 1);
     //计算每个好果子到我们身体的距离
     if (score > save_score) {
       save_score = score;
@@ -68,7 +49,7 @@ function cal_food_dis(snake: i32[], snake_num: i32, enemy_snake: i32[],
     return direction;
   }
   for (let i = 0; i < equal_foods.length; i++) {
-    var score = 0;
+    let score = 0;
     for (let j = 0; j < bad_foods.length; j++) {
       score += cal_single_dis([foods[2 * bad_foods[j]], foods[2 * bad_foods[j] + 1]],
         [foods[2 * equal_foods[i]], foods[2 * equal_foods[i] + 1]]);
@@ -87,22 +68,19 @@ function cal_food_dis(snake: i32[], snake_num: i32, enemy_snake: i32[],
     let direction = search_food(snake, snake_num, enemy_snake, [foods[2 * save_food], foods[2 * save_food + 1]]);
     return direction;
   }
-
   return wander(snake, snake_num, enemy_snake);
 
 }
 
 function cal_single_dis(snake: i32[], food: i32[]): i32 {
-
-
-  return Math.abs(snake[0] - food[0]) + Math.abs(snake[1] - food[1]);
+  return (Math.abs(snake[0] - food[0]) + Math.abs(snake[1] - food[1])) as i32;
 }
 
 function wander(snake: i32[], snake_num: i32, enemy_snake: i32[],
 ): i32 {
   const barriers = new Set<i32>();
   initBlockBarriers(barriers, snake_num, enemy_snake);
-  let targets = [];
+  let targets: Array<i32> = new Array<i32>();
   let head_x = snake[0];
   let head_y = snake[1];
   if (!barriers.has(trans2Point(head_x, head_y + 1)) && !exceedBound(head_x, head_y + 1)) {
@@ -137,6 +115,9 @@ function wander(snake: i32[], snake_num: i32, enemy_snake: i32[],
       save = i;
     }
   }
+  if (save === -1) {
+    return bind(snake, snake_num, enemy_snake);
+  }
   return save;
 }
 function cal_enemy_dis(target: i32, snake_num: i32, enemy_snake: i32[]): i32 {
@@ -144,9 +125,9 @@ function cal_enemy_dis(target: i32, snake_num: i32, enemy_snake: i32[]): i32 {
   let x = target / map_size;
   let y = target % map_size + 1;
   for (let i = 0; i < enemy_snake.length; i += 2) {
-    score += Math.abs(enemy_snake[i] - x) + Math.abs(enemy_snake[i + 1] - y);
+    score += (Math.abs(enemy_snake[i] - x) + Math.abs(enemy_snake[i + 1] - y)) as i32;
   }
-  score -= 4 * Math.max(Math.abs(2 * x - (map_size + 1)), Math.abs(2 * y - (1 + map_size)));
+  score -= (4 * Math.max(Math.abs(2 * x - (map_size + 1)), Math.abs(2 * y - (1 + map_size)))) as i32;
   return score;
 }
 
@@ -164,9 +145,10 @@ function search_food(body: i32[], snake_num: i32, enemy_snake: i32[],
   initBlockBarriers(blockBarriers, snake_num, enemy_snake);
   let queueBegin = 0;
   let queueEnd = 0;
-  const pathMap = new Array<i32>(64);
+  const pathMap = new Array<i32>(100);
   initPathMap(pathMap, headPoint, bodyPoint1, bodyPoint2, bodyPoint3);
   queue[queueEnd++] = headPoint;
+  let flag = false;
   while (queueBegin < queueEnd) {
     let point = queue[queueBegin++];
     visited.add(point);
@@ -176,28 +158,28 @@ function search_food(body: i32[], snake_num: i32, enemy_snake: i32[],
       while (pathMap[point] !== headPoint) {
         point = pathMap[point];
       }
-      console.log("find a way to fruit\n");
       return getDirection(headPoint, point);
     }
-    if (!exceedBound(x + 1, y) && !isBarrier(x + 1, y, blockBarriers) && !visited.has(trans2Point(x + 1, y)) && !isGoBack(point, x + 1, y, pathMap)) {
+    if (!exceedBound(x + 1, y) && !isBarrierSnake(x + 1, y, blockBarriers, flag) && !visited.has(trans2Point(x + 1, y)) && !isGoBack(point, x + 1, y, pathMap)) {
       queue[queueEnd++] = trans2Point(x + 1, y);
       pathMap[trans2Point(x + 1, y)] = point;
     }
-    if (!exceedBound(x - 1, y) && !isBarrier(x - 1, y, blockBarriers) && !visited.has(trans2Point(x - 1, y)) && !isGoBack(point, x - 1, y, pathMap)) {
+    if (!exceedBound(x - 1, y) && !isBarrierSnake(x - 1, y, blockBarriers, flag) && !visited.has(trans2Point(x - 1, y)) && !isGoBack(point, x - 1, y, pathMap)) {
       queue[queueEnd++] = trans2Point(x - 1, y);
       pathMap[trans2Point(x - 1, y)] = point;
     }
-    if (!exceedBound(x, y + 1) && !isBarrier(x, y + 1, blockBarriers) && !visited.has(trans2Point(x, y + 1)) && !isGoBack(point, x, y + 1, pathMap)) {
+    if (!exceedBound(x, y + 1) && !isBarrierSnake(x, y + 1, blockBarriers, flag) && !visited.has(trans2Point(x, y + 1)) && !isGoBack(point, x, y + 1, pathMap)) {
       queue[queueEnd++] = trans2Point(x, y + 1);
       pathMap[trans2Point(x, y + 1)] = point;
     }
-    if (!exceedBound(x, y - 1) && !isBarrier(x, y - 1, blockBarriers) && !visited.has(trans2Point(x, y - 1)) && !isGoBack(point, x, y - 1, pathMap)) {
+    if (!exceedBound(x, y - 1) && !isBarrierSnake(x, y - 1, blockBarriers, flag) && !visited.has(trans2Point(x, y - 1)) && !isGoBack(point, x, y - 1, pathMap)) {
       queue[queueEnd++] = trans2Point(x, y - 1);
       pathMap[trans2Point(x, y - 1)] = point;
     }
+    flag = true;
   }
-  console.log("fail to find a way to fruit\n");
-  return -1;
+
+  return bind(body, snake_num, enemy_snake);//没有找到食物，开始概率行为
 }
 
 
@@ -205,8 +187,8 @@ function exceedBound(x: i32, y: i32): bool {
   return x < 1 || x > map_size || y < 1 || y > map_size;
 }
 
-function isBarrier(x: i32, y: i32, barriers: Set<i32>): bool {
-  return barriers.has(trans2Point(x, y));
+function isBarrierSnake(x: i32, y: i32, barriers: Set<i32>, judge: bool): bool {
+  return !judge && barriers.has(trans2Point(x, y));//judge意味着安全模式，不考虑障碍物
 }
 
 function trans2Point(x: i32, y: i32): i32 {
@@ -225,22 +207,16 @@ function getDirection(headPoint: i32, point: i32): i32 {
   let next_y = point % map_size + 1;
   let head_x = headPoint / map_size;
   let head_y = headPoint % map_size + 1;
-  console.log(next_x.toString());
-  console.log(next_y.toString());
   if (next_x === head_x + 1) {
-    console.log("right");
     return 3;
   }
   if (next_x === head_x - 1) {
-    console.log("left");
     return 1;
   }
   if (next_y === head_y + 1) {
-    console.log("up");
     return 0;
   }
   if (next_y === head_y - 1) {
-    console.log("down");
     return 2;
   }
   return -1;
@@ -263,7 +239,7 @@ function initBlockBarriers(blockBarriers: Set<i32>, snake_num: i32, enemy_snake:
     blockBarriers.add(point);
   }
   // 将蛇头可能到达的方块添加到障碍物中
-  for (let i = 1; i <= snake_num; i++) {
+  for (let i = 0; i < snake_num; i++) {
     let x = enemy_snake[8 * i];
     let y = enemy_snake[8 * i + 1];
     // 这里未考虑出界的情况，因为无所谓
@@ -271,5 +247,78 @@ function initBlockBarriers(blockBarriers: Set<i32>, snake_num: i32, enemy_snake:
     blockBarriers.add(trans2Point(x + 1, y));
     blockBarriers.add(trans2Point(x, y - 1));
     blockBarriers.add(trans2Point(x, y + 1));
+
   }
+}
+
+function getSnakeHead(grayBlock: i32[], snake_num: i32, enemy_snake: i32[], body: i32[]): void {
+  //初始化为0
+  for (let i = 0; i < grayBlock.length; i++) {
+    grayBlock[i] = 0;
+  }
+  for (let i = 0; i < snake_num; i++) {
+    let x = enemy_snake[8 * i];
+    let y = enemy_snake[8 * i + 1];
+    // 统计这些灰色格子被蛇头命中的次数
+    grayBlock[trans2Point(x - 1, y)]++;
+    grayBlock[trans2Point(x + 1, y)]++;
+    grayBlock[trans2Point(x, y - 1)]++;
+    grayBlock[trans2Point(x, y + 1)]++;
+  }
+  for (let i = 0; i < snake_num; i++) {
+    // 将其他蛇的身体（除尾巴）添加到障碍物中
+    let point = trans2Point(enemy_snake[8 * i], enemy_snake[8 * i + 1]);
+    grayBlock[point] = 0xffff;
+    point = trans2Point(enemy_snake[8 * i + 2], enemy_snake[8 * i + 3]);
+    grayBlock[point] = 0xffff;
+    point = trans2Point(enemy_snake[8 * i + 4], enemy_snake[8 * i + 5]);
+    grayBlock[point] = 0xffff;
+  }//障碍物将会非常大，以致于有限不选择障碍物
+
+  let point = trans2Point(body[2], body[3]);
+  grayBlock[point] = 0xffff;
+
+}
+
+function bind(snake: i32[], snake_num: i32, enemy_snake: i32[]): i32 {
+  const grayBlock = new Array<i32>(100);
+  // 如果没有找到食物，开始概率行为
+  getSnakeHead(grayBlock, snake_num, enemy_snake, snake);
+  const directions = new Array<i32>(4);
+  if (exceedBound(snake[0], snake[1] + 1)) {
+    directions[0] = 0xffff;
+  } else {
+    directions[0] = grayBlock[trans2Point(snake[0], snake[1] + 1)];
+  }
+  if (exceedBound(snake[0] - 1, snake[1])) {
+    directions[1] = 0xffff;
+  } else {
+    directions[1] = grayBlock[trans2Point(snake[0] - 1, snake[1])];
+  }
+  if (exceedBound(snake[0], snake[1] - 1)) {
+    directions[2] = 0xffff;
+  }
+  else {
+    directions[2] = grayBlock[trans2Point(snake[0], snake[1] - 1)];
+  }
+  if (exceedBound(snake[0] + 1, snake[1])) {
+    directions[3] = 0xffff;
+  } else {
+    directions[3] = grayBlock[trans2Point(snake[0] + 1, snake[1])];
+  }
+  let minVal = directions[0];
+  let minIndices: i32[] = [0];
+  for (let i = 1; i < directions.length; i++) {
+    const current = directions[i];
+    if (current < minVal) {
+      minVal = current;
+      minIndices = [i];
+    } else if (current === minVal) {
+      minIndices.push(i);
+    }
+  }
+  // 随机选择一个索引
+  const randomDirection = Math.floor(Math.random() * minIndices.length) as i32;
+  const selectedDirection = minIndices[randomDirection];
+  return selectedDirection;
 }
